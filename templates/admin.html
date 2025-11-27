@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>마니또 관리자</title>
+</head>
+
+<body>
+    <h1>마니또 입력 관리자 페이지</h1>
+
+    {% if records and records|length > 0 %}
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>이름</th>
+                <th>뽑은 마니또</th>
+                <th>제출 시간</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ r.name }}</td>
+                <td>{{ r.manitto }}</td>
+                <td>{{ r.time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>아직 제출된 데이터가 없습니다.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">입력 페이지로 돌아가기</a>
+</body>
+
+</html>

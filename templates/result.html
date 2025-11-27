@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>마니또 결과</title>
+</head>
+
+<body>
+    <h1>제출되었습니다.</h1>
+
+    {% if name and manitto %}
+    <p>{{ name }} → {{ manitto }}</p>
+    {% else %}
+    <p>잘못된 접근입니다.</p>
+    {% endif %}
+
+</body>
+
+</html>

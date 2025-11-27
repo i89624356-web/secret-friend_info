@@ -1,0 +1,69 @@
+from flask import Flask, render_template, request, redirect, url_for
+import json
+import os
+from datetime import datetime
+
+app = Flask(__name__)
+
+DATA_FILE = "result.json"
+
+
+def load_data():
+    """result.json 로드 (없으면 빈 리스트 반환)"""
+    if not os.path.exists(DATA_FILE):
+        return []
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_result(name, manitto):
+    """이름-마니또 기록을 result.json에 추가 저장"""
+    data = load_data()
+
+    data.append({
+        "name": name,
+        "manitto": manitto,
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
+
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        manitto = request.form.get("manitto", "").strip()
+
+        if name and manitto:
+            # 파일에 저장
+            save_result(name, manitto)
+            # 결과 페이지로 이동하면서 이름/마니또 전달
+            return redirect(url_for("result_page", name=name, manitto=manitto))
+        else:
+            # 하나라도 비었으면 다시 폼
+            return render_template("index.html")
+
+    # GET이면 그냥 폼
+    return render_template("index.html")
+
+
+@app.route("/result")
+def result_page():
+    name = request.args.get("name")
+    manitto = request.args.get("manitto")
+    return render_template("result.html", name=name, manitto=manitto)
+
+
+@app.route("/admin")
+def admin():
+    """관리자 페이지: 지금까지 입력된 모든 기록 표시"""
+    records = load_data()
+    # 최신 것이 위로 오도록 뒤집기 (원하면 제거해도 됨)
+    records = list(reversed(reversed(records)))
+    return render_template("admin.html", records=records)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
