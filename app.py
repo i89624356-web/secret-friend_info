@@ -72,8 +72,6 @@ def admin():
         else:
             message = "비밀번호가 틀렸습니다."
 
-    # 최신이 위로 오게 하고 싶으면 한 번 뒤집기
-    records = list(reversed(records))
     return render_template("admin.html",
                            records=records,
                            show_full=show_full,
