@@ -82,3 +82,28 @@ def admin():
         show_full=show_full,
         message=message,
     )
+
+
+@app.route("/admin/edit/<int:idx>", methods=["GET", "POST"])
+def edit(idx):
+    records = load_data()
+
+    # 범위 체크
+    if idx < 0 or idx >= len(records):
+        abort(404)
+
+    record = records[idx]
+
+    if request.method == "POST":
+        new_name = request.form.get("name", "").strip()
+
+        if new_name:
+            record["name"] = new_name
+
+        # 저장
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(records, f, ensure_ascii=False, indent=4)
+
+        return redirect(url_for("admin"))
+
+    return render_template("edit.html", record=record, idx=idx)

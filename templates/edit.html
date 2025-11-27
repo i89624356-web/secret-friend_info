@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>이름 수정</title>
+</head>
+
+<body>
+    <h1>이름 수정</h1>
+
+    <form method="post">
+        <p>
+            <label>이름:
+                <input type="text" name="name" value="{{ record.name }}" required>
+            </label>
+        </p>
+
+        <button type="submit">저장</button>
+        <a href="{{ url_for('admin') }}">취소</a>
+    </form>
+
+</body>
+
+</html>

@@ -11,7 +11,7 @@
 
     <!-- 전체 매칭 보기 (관리자용) -->
     <h2>전체 매칭 보기 (관리자용)</h2>
-    <!-- action을 /admin 으로 (그냥 비워 놔도 자동으로 /admin) -->
+
     <form method="post">
         <label>관리자 비밀번호: </label>
         <input type="password" name="password" required>
@@ -31,6 +31,7 @@
             <th>이름</th>
             <th>뽑은 마니또</th>
             <th>제출 시간</th>
+            <th>관리</th>
         </tr>
 
         {% for r in records %}
@@ -45,9 +46,13 @@
                 {% endif %}
             </td>
             <td>{{ r.time }}</td>
+            <td>
+                <a href="{{ url_for('edit', idx=loop.index0) }}">이름 수정</a>
+            </td>
         </tr>
         {% endfor %}
     </table>
+
 </body>
 
 </html>
