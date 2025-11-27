@@ -3,58 +3,39 @@
 
 <head>
     <meta charset="utf-8">
-    <title>마니또 관리자</title>
+    <title>마니또 입력 관리자 페이지</title>
 </head>
 
 <body>
     <h1>마니또 입력 관리자 페이지</h1>
 
-    {% if records and records|length > 0 %}
-    <table border="1" cellspacing="0" cellpadding="5">
-        <thead>
-            <tr>
-                <th>번호</th>
-                <th>이름</th>
-                <th>뽑은 마니또</th>
-                <th>제출 시간</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in records %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ r.name }}</td>
-                <td>
-                    {% if show_full %}
-                    {{ r.manitto }}
-                    {% else %}
-                    -
-                    {% endif %}
-                </td>
-                <td>{{ r.time }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>아직 제출된 데이터가 없습니다.</p>
-    {% endif %}
-
-    <hr>
-
+    <!-- 🔼 전체 매칭 보기 (관리자용) - 위로 이동 -->
     <h2>전체 매칭 보기 (관리자용)</h2>
-    <form method="post">
-        <label>관리자 비밀번호:
-            <input type="password" name="password" required>
-        </label>
+    <form method="post" action="/admin/view_all">
+        <label>관리자 비밀번호: </label>
+        <input type="password" name="password" required>
         <button type="submit">전체 보기</button>
     </form>
 
-    {% if message %}
-    <p style="color: red;">{{ message }}</p>
-    {% endif %}
+    <hr>
 
-
+    <!-- 🔽 기록 테이블 (아래로 이동) -->
+    <table border="1" cellspacing="0" cellpadding="10">
+        <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>뽑은 마니또</th>
+            <th>제출 시간</th>
+        </tr>
+        {% for i, r in enumerate(records, start=1) %}
+        <tr>
+            <td>{{ i }}</td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.manitto }}</td>
+            <td>{{ r.time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 
 </html>
