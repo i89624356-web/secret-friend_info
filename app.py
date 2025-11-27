@@ -58,12 +58,8 @@ def result_page():
 
 @app.route("/admin")
 def admin():
-    """관리자 페이지: 지금까지 입력된 모든 기록 표시"""
     records = load_data()
-    # 최신 것이 위로 오도록 뒤집기 (원하면 제거해도 됨)
-    records = list(reversed(reversed(records)))
     return render_template("admin.html", records=records)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
