@@ -27,9 +27,10 @@
             <th>뽑은 마니또</th>
             <th>제출 시간</th>
         </tr>
-        {% for i, r in enumerate(records, start=1) %}
+
+        {% for r in records %}
         <tr>
-            <td>{{ i }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ r.name }}</td>
             <td>{{ r.manitto }}</td>
             <td>{{ r.time }}</td>
