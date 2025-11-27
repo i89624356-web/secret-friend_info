@@ -13,7 +13,7 @@
     <table border="1" cellspacing="0" cellpadding="5">
         <thead>
             <tr>
-                <th>번호</th>
+                <th>#</th>
                 <th>이름</th>
                 <th>뽑은 마니또</th>
                 <th>제출 시간</th>
@@ -24,7 +24,13 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
-                <td>{{ r.manitto }}</td>
+                <td>
+                    {% if show_full %}
+                    {{ r.manitto }}
+                    {% else %}
+                    비공개
+                    {% endif %}
+                </td>
                 <td>{{ r.time }}</td>
             </tr>
             {% endfor %}
@@ -34,6 +40,22 @@
     <p>아직 제출된 데이터가 없습니다.</p>
     {% endif %}
 
+    <hr>
+
+    <h2>전체 매칭 보기 (관리자용)</h2>
+    <form method="post">
+        <label>관리자 비밀번호:
+            <input type="password" name="password" required>
+        </label>
+        <button type="submit">전체 보기</button>
+    </form>
+
+    {% if message %}
+    <p style="color: red;">{{ message }}</p>
+    {% endif %}
+
+    <br>
+    <a href="/">입력 페이지로 돌아가기</a>
 </body>
 
 </html>

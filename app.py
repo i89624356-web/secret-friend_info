@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 DATA_FILE = "result.json"
 
+ADMIN_PASSWORD = "manitto1234"
 
 def load_data():
     """result.json 로드 (없으면 빈 리스트 반환)"""
@@ -56,10 +57,24 @@ def result_page():
     return render_template("result.html", name=name, manitto=manitto)
 
 
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 def admin():
+    """관리자 페이지: 기본은 이름만, 비밀번호 맞으면 전체 매칭 공개"""
     records = load_data()
-    return render_template("admin.html", records=records)
+    # 기본값: 이름만 보이고 마니또는 숨김
+    show_full = False
+    message = None
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        if password == ADMIN_PASSWORD:
+            show_full = True   # 전체 보기 허용
+        else:
+            message = "비밀번호가 틀렸습니다."
+
+    # 최신이 위로 오게 하고 싶으면 한 번 뒤집기
+    records = list(reversed(records))
+    return render_template("admin.html",
+                           records=records,
+                           show_full=show_full,
+                           message=message)
