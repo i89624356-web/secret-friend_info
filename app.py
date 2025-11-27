@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 
 DATA_FILE = "result.json"
 
 ADMIN_PASSWORD = "manitto1234"
+
+
+KST = timezone(timedelta(hours=9))
 
 def load_data():
     """result.json 로드 (없으면 빈 리스트 반환)"""
@@ -24,7 +27,7 @@ def save_result(name, manitto):
     data.append({
         "name": name,
         "manitto": manitto,
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
     })
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
