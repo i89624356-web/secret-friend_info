@@ -62,20 +62,23 @@ def result_page():
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    """관리자 페이지: 기본은 이름만, 비밀번호 맞으면 전체 매칭 공개"""
     records = load_data()
-    # 기본값: 이름만 보이고 마니또는 숨김
     show_full = False
     message = None
 
     if request.method == "POST":
         password = request.form.get("password", "")
         if password == ADMIN_PASSWORD:
-            show_full = True   # 전체 보기 허용
+            show_full = True
         else:
             message = "비밀번호가 틀렸습니다."
 
-    return render_template("admin.html",
-                           records=records,
-                           show_full=show_full,
-                           message=message)
+    # 최신이 아래로 가게 하고 싶으면 그대로 두고, 위로 가게 하고 싶으면 reversed 사용
+    # records = list(reversed(records))
+
+    return render_template(
+        "admin.html",
+        records=records,
+        show_full=show_full,
+        message=message,
+    )

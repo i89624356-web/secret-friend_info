@@ -9,17 +9,22 @@
 <body>
     <h1>마니또 입력 관리자 페이지</h1>
 
-    <!-- 🔼 전체 매칭 보기 (관리자용) - 위로 이동 -->
+    <!-- 전체 매칭 보기 (관리자용) -->
     <h2>전체 매칭 보기 (관리자용)</h2>
-    <form method="post" action="/admin/view_all">
+    <!-- action을 /admin 으로 (그냥 비워 놔도 자동으로 /admin) -->
+    <form method="post">
         <label>관리자 비밀번호: </label>
         <input type="password" name="password" required>
         <button type="submit">전체 보기</button>
     </form>
 
+    {% if message %}
+    <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
     <hr>
 
-    <!-- 🔽 기록 테이블 (아래로 이동) -->
+    <!-- 기록 테이블 -->
     <table border="1" cellspacing="0" cellpadding="10">
         <tr>
             <th>번호</th>
@@ -32,7 +37,13 @@
         <tr>
             <td>{{ loop.index }}</td>
             <td>{{ r.name }}</td>
-            <td>{{ r.manitto }}</td>
+            <td>
+                {% if show_full %}
+                {{ r.manitto }}
+                {% else %}
+                비공개
+                {% endif %}
+            </td>
             <td>{{ r.time }}</td>
         </tr>
         {% endfor %}
