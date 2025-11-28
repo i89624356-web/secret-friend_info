@@ -61,7 +61,6 @@
             cursor: pointer;
             font-size: 0.9rem;
             margin-left: 12px;
-            /* ← 이름 수정과 간격 추가 */
         }
 
         .btn-delete:hover {
@@ -112,6 +111,7 @@
             </tr>
         </thead>
         <tbody>
+
             {% for r in records %}
             <tr>
                 <td>{{ loop.index }}</td>
@@ -128,17 +128,19 @@
                 <td>{{ r.time }}</td>
 
                 <td>
-                    <!-- 이름 수정 -->
-                    <a href="{{ url_for('edit', idx=loop.index0) }}">이름 수정</a>
+                    <!-- 이름 수정: 반드시 r._idx 사용 -->
+                    <a href="{{ url_for('edit', idx=r._idx) }}">이름 수정</a>
 
-                    <!-- 삭제 버튼 (띄워줌) -->
-                    <form method="post" action="{{ url_for('delete', idx=loop.index0) }}" style="display:inline;"
+                    <!-- 삭제: 반드시 r._idx 사용 -->
+                    <form method="post" action="{{ url_for('delete', idx=r._idx) }}" style="display:inline;"
                         onsubmit="return confirm('삭제 하시겠습니까?');">
                         <button type="submit" class="btn-delete">삭제</button>
                     </form>
                 </td>
+
             </tr>
             {% endfor %}
+
         </tbody>
     </table>
     {% else %}

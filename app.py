@@ -83,13 +83,18 @@ def result_page():
 # ======================
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    records_raw = load_data()
+    records_raw = load_data()  # 원본(제출 순서)
+
+    # 각 레코드에 원본 인덱스를 붙인 리스트 생성
+    records = [
+        {**rec, "_idx": i}
+        for i, rec in enumerate(records_raw)
+    ]
 
     # 정렬 여부(쿼리 파라미터)
     sort_mode = request.args.get("sort", "0") == "1"
-    records = records_raw.copy()
-
     if sort_mode:
+        # 이름 기준으로 정렬 (표시용 순서만 바뀜, _idx는 유지)
         records.sort(key=lambda x: x["name"])
 
     # 최신 제출 5개 (원본 제출 순서 기준, 최신이 위로)
