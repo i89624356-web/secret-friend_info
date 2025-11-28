@@ -6,11 +6,14 @@ from datetime import datetime, timedelta, timezone
 app = Flask(__name__)
 
 DATA_FILE = "result.json"
-
 ADMIN_PASSWORD = "password1234"
-
-
 KST = timezone(timedelta(hours=9))
+
+@app.route("/")
+def health():
+    # UptimeRobot 등이 찍을 루트 경로: 아주 가볍게 200만 돌려줌
+    return "OK", 200
+
 
 def load_data():
     """result.json 로드 (없으면 빈 리스트 반환)"""
@@ -34,7 +37,7 @@ def save_result(name, manitto):
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/form", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
