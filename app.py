@@ -15,7 +15,6 @@ KST = timezone(timedelta(hours=9))
 # ======================
 @app.route("/")
 def health():
-    # UptimeRobot 등이 찍을 루트 경로: 아주 가볍게 200만 돌려줌
     return "OK", 200
 
 
@@ -37,14 +36,14 @@ def save_all(records):
 
 
 def save_result(name, manitto):
-    """이름-마니또 기록을 result.json에 추가 저장"""
-    data = load_data()
-    data.append({
+    """이름-마니또 기록 추가"""
+    records = load_data()
+    records.append({
         "name": name,
         "manitto": manitto,
         "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
     })
-    save_all(data)
+    save_all(records)
 
 
 # ======================
@@ -63,7 +62,7 @@ def index():
             # 하나라도 비었으면 다시 폼
             return render_template("index.html")
 
-    # GET이면 폼 보여주기
+    # GET이면 폼
     return render_template("index.html")
 
 
@@ -79,23 +78,24 @@ def result_page():
 
 # ======================
 # 관리자 페이지 (/admin)
-# - 비번 맞으면 마니또 공개
-# - 이름 가나다 정렬 토글(sort=1)
+# - 비번 맞으면 마니또 공개(show_full=True)
+# - sort=1 이면 이름 가나다순 정렬
 # ======================
 @app.route("/admin", methods=["GET", "POST"])
-def admin_page():
-    data = load_data()
+def admin():
+    records_raw = load_data()
 
     # 정렬 여부(쿼리 파라미터)
     sort_mode = request.args.get("sort", "0") == "1"
-    records = data.copy()
+    records = records_raw.copy()
+
     if sort_mode:
         records.sort(key=lambda x: x["name"])
 
-    # 최신 제출 5개 요약 (원본 제출 순서 기준, 최신이 위로)
-    summary = data[-5:][::-1]
+    # 최신 제출 5개 (원본 제출 순서 기준, 최신이 위로)
+    summary = records_raw[-5:][::-1]
 
-    # 비밀번호 확인
+    # 비밀번호 확인 (마니또 공개용)
     show_full = False
     message = ""
 
@@ -123,7 +123,7 @@ def admin_page():
 def edit(idx):
     records = load_data()
 
-    # 범위 체크
+    # 인덱스 범위 체크
     if idx < 0 or idx >= len(records):
         abort(404)
 
@@ -134,8 +134,10 @@ def edit(idx):
         if new_name:
             record["name"] = new_name
             save_all(records)
-        return redirect(url_for("admin_page"))
+        # 수정 후 /admin으로 이동
+        return redirect(url_for("admin"))
 
+    # GET: 수정 폼
     return render_template("edit.html", record=record, idx=idx)
 
 
@@ -152,16 +154,14 @@ def delete(idx):
 
     # 해당 기록 삭제
     records.pop(idx)
-
-    # 파일에 다시 저장
     save_all(records)
 
-    # 관리자 페이지로 돌아가기
-    return redirect(url_for("admin_page"))
+    # 삭제 후 /admin으로 이동
+    return redirect(url_for("admin"))
 
 
 # ======================
-# 로컬 서버 실행
+# 로컬 실행
 # ======================
 if __name__ == "__main__":
     app.run()
