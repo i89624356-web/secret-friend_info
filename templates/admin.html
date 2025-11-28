@@ -1,34 +1,67 @@
-<table border="1" cellspacing="0" cellpadding="10">
-    <tr>
-        <th>번호</th>
-        <th>이름</th>
-        <th>뽑은 마니또</th>
-        <th>제출 시간</th>
-        <th>관리</th>
-    </tr>
+<!doctype html>
+<html lang="ko">
 
-    {% for r in records %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ r.name }}</td>
-        <td>
-            {% if show_full %}
-            {{ r.manitto }}
-            {% else %}
-            -
-            {% endif %}
-        </td>
-        <td>{{ r.time }}</td>
-        <td>
-            <!-- 이름 수정: 비번 체크 없이 항상 가능 -->
-            <a href="{{ url_for('edit', idx=loop.index0) }}">이름 수정</a>
+<head>
+    <meta charset="utf-8">
+    <title>마니또 입력 관리자 페이지</title>
+</head>
 
-            <!-- 삭제: 비번 체크 없이 항상 가능 -->
-            <form method="post" action="{{ url_for('delete', idx=loop.index0) }}" style="display:inline;"
-                onsubmit="return confirm('삭제 하시겠습니까?');">
-                <button type="submit">삭제</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<body>
+    <h1>마니또 입력 관리자 페이지</h1>
+
+    <!-- 전체 매칭 보기 (관리자용 - 비번 맞으면 show_full=True) -->
+    <h2>전체 매칭 보기 (관리자용)</h2>
+    <form method="post">
+        <label>관리자 비밀번호: </label>
+        <input type="password" name="password" required>
+        <button type="submit">전체 보기</button>
+    </form>
+
+    {% if message %}
+    <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- 기록 테이블 -->
+    <table border="1" cellspacing="0" cellpadding="10">
+        <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>뽑은 마니또</th>
+            <th>제출 시간</th>
+            <th>관리</th>
+        </tr>
+
+        {% for r in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r.name }}</td>
+
+            <!-- 마니또는 비번 맞아야 보이고 / 수정·삭제는 항상 가능 -->
+            <td>
+                {% if show_full %}
+                {{ r.manitto }}
+                {% else %}
+                비공개
+                {% endif %}
+            </td>
+
+            <td>{{ r.time }}</td>
+
+            <td>
+                <!-- 이름 수정: 비번 관계 없이 항상 가능 -->
+                <a href="{{ url_for('edit', idx=loop.index0) }}">이름 수정</a>
+
+                <!-- 삭제: 비번 관계 없이 항상 가능 -->
+                <form method="post" action="{{ url_for('delete', idx=loop.index0) }}" style="display:inline;"
+                    onsubmit="return confirm('정말 삭제할까요?');">
+                    <button type="submit">삭제</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>
