@@ -60,6 +60,8 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.9rem;
+            margin-left: 12px;
+            /* ← 이름 수정과 간격 추가 */
         }
 
         .btn-delete:hover {
@@ -118,10 +120,10 @@
                 <td>{{ r.time }}</td>
 
                 <td>
-                    <!-- 이름 수정: 비번 관계 없이 항상 가능 -->
+                    <!-- 이름 수정 -->
                     <a href="{{ url_for('edit', idx=loop.index0) }}">이름 수정</a>
 
-                    <!-- 삭제: 비번 관계 없이 항상 가능 -->
+                    <!-- 삭제 버튼 (띄워줌) -->
                     <form method="post" action="{{ url_for('delete', idx=loop.index0) }}" style="display:inline;"
                         onsubmit="return confirm('정말 삭제할까요?');">
                         <button type="submit" class="btn-delete">삭제</button>
