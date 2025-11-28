@@ -78,6 +78,14 @@
 <body>
     <h1>마니또 입력 관리자 페이지</h1>
 
+    <p>
+        {% if sort %}
+        <a href="/admin?sort=0">제출순 정렬</a>
+        {% else %}
+        <a href="/admin?sort=1">이름순 정렬</a>
+        {% endif %}
+    </p>
+
     <!-- 전체 매칭 보기 (관리자용) -->
     <h2>전체 매칭 보기 (관리자용)</h2>
     <form method="post">
@@ -113,7 +121,7 @@
                     {% if show_full %}
                     {{ r.manitto }}
                     {% else %}
-                    비공개
+                    -
                     {% endif %}
                 </td>
 
@@ -125,7 +133,7 @@
 
                     <!-- 삭제 버튼 (띄워줌) -->
                     <form method="post" action="{{ url_for('delete', idx=loop.index0) }}" style="display:inline;"
-                        onsubmit="return confirm('정말 삭제할까요?');">
+                        onsubmit="return confirm('삭제 하시겠습니까?');">
                         <button type="submit" class="btn-delete">삭제</button>
                     </form>
                 </td>

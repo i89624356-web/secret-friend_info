@@ -64,28 +64,32 @@ def result_page():
 
 
 @app.route("/admin", methods=["GET", "POST"])
-def admin():
-    records = load_data()
-    show_full = False
-    message = None
+def admin_page():
+    if not os.path.exists(DATA_FILE):
+        return render_template("admin.html", records=[], summary=[], sort=False)
 
-    if request.method == "POST":
-        password = request.form.get("password", "")
-        if password == ADMIN_PASSWORD:
-            show_full = True
-        else:
-            message = "비밀번호가 틀렸습니다."
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    # 최신이 아래로 가게 하고 싶으면 그대로 두고, 위로 가게 하고 싶으면 reversed 사용
-    # records = list(reversed(records))
+    # 정렬 여부(쿼리 파라미터)
+    sort_mode = request.args.get("sort", "0") == "1"
+
+    records = data.copy()
+
+    # 가나다 정렬 활성화된 경우
+    if sort_mode:
+        records.sort(key=lambda x: x["name"])
+        
+    # 최신 제출 5개만 요약
+    summary = data[-5:][::-1]
 
     return render_template(
         "admin.html",
         records=records,
-        show_full=show_full,
-        message=message,
+        summary=summary,
+        show_full=True,
+        sort=sort_mode
     )
-
 
 @app.route("/admin/edit/<int:idx>", methods=["GET", "POST"])
 def edit(idx):
