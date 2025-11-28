@@ -110,3 +110,22 @@ def edit(idx):
         return redirect(url_for("admin"))
 
     return render_template("edit.html", record=record, idx=idx)
+
+
+@app.route("/admin/delete/<int:idx>", methods=["POST"])
+def delete(idx):
+    records = load_data()
+
+    # 인덱스 범위 체크
+    if idx < 0 or idx >= len(records):
+        abort(404)
+
+    # 해당 기록 삭제
+    records.pop(idx)
+
+    # 파일에 다시 저장
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=4)
+
+    # 관리자 페이지로 돌아가기
+    return redirect(url_for("admin"))
