@@ -190,12 +190,11 @@ def export_csv():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(["name", "manitto", "time"])
+    writer.writerow(["이름", "뽑은 마니또"])
     for r in records:
         writer.writerow([
             r.get("name", ""),
-            r.get("manitto", ""),
-            r.get("time", "")
+            r.get("manitto", "")
         ])
 
     csv_text = output.getvalue()
