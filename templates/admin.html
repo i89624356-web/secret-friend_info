@@ -86,7 +86,7 @@
 
         {% if show_full %}
         &nbsp; | &nbsp;
-        <a href="{{ url_for('export_csv') }}">CSV 다운로드</a>
+        <a href="{{ url_for('export_csv') }}?sort={{ 1 if sort else 0 }}">CSV 다운로드</a>
         {% endif %}
     </p>
 

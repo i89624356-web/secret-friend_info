@@ -173,30 +173,40 @@ def delete(idx):
 # ======================
 @app.route("/admin/export_csv")
 def export_csv():
-    records = load_data()
+    records_raw = load_data()
 
-    # CSV를 메모리에서 생성
+    # sort 파라미터 확인
+    sort_mode = request.args.get("sort", "0") == "1"
+
+    # 화면 정렬 기준 그대로 적용
+    if sort_mode:
+        # 이름순 정렬
+        records = sorted(records_raw, key=lambda x: x["name"])
+    else:
+        # 제출순
+        records = records_raw
+
+    # CSV 생성
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # 헤더
     writer.writerow(["name", "manitto", "time"])
-
-    # 각 행 기록
     for r in records:
         writer.writerow([
             r.get("name", ""),
             r.get("manitto", ""),
-            r.get("time", ""),
+            r.get("time", "")
         ])
 
-    csv_data = output.getvalue()
+    csv_text = output.getvalue()
     output.close()
 
-    # 브라우저가 바로 다운로드하게 응답 생성
+    # CP949로 변환 (엑셀 한글 깨짐 방지)
+    csv_bytes = csv_text.encode("cp949", errors="ignore")
+
     return Response(
-        csv_data,
-        mimetype="text/csv; charset=utf-8",
+        csv_bytes,
+        mimetype="text/csv; charset=cp949",
         headers={
             "Content-Disposition": "attachment; filename=result.csv"
         }
