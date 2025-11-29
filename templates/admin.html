@@ -83,6 +83,11 @@
         {% else %}
         <a href="/admin?sort=1">이름순 정렬</a>
         {% endif %}
+
+        {% if show_full %}
+        &nbsp; | &nbsp;
+        <a href="{{ url_for('export_csv') }}">CSV 다운로드</a>
+        {% endif %}
     </p>
 
     <!-- 전체 매칭 보기 (관리자용) -->
@@ -111,12 +116,10 @@
             </tr>
         </thead>
         <tbody>
-
             {% for r in records %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ r.name }}</td>
-
                 <td>
                     {% if show_full %}
                     {{ r.manitto }}
@@ -124,23 +127,16 @@
                     -
                     {% endif %}
                 </td>
-
                 <td>{{ r.time }}</td>
-
                 <td>
-                    <!-- 이름 수정: 반드시 r._idx 사용 -->
                     <a href="{{ url_for('edit', idx=r._idx) }}">이름 수정</a>
-
-                    <!-- 삭제: 반드시 r._idx 사용 -->
                     <form method="post" action="{{ url_for('delete', idx=r._idx) }}" style="display:inline;"
                         onsubmit="return confirm('삭제 하시겠습니까?');">
                         <button type="submit" class="btn-delete">삭제</button>
                     </form>
                 </td>
-
             </tr>
             {% endfor %}
-
         </tbody>
     </table>
     {% else %}

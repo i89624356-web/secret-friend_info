@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import Flask, render_template, request, redirect, url_for, abort, Response
 import json
 import os
 from datetime import datetime, timedelta, timezone
+import csv
+import io
 
 app = Flask(__name__)
 
@@ -80,12 +82,13 @@ def result_page():
 # 관리자 페이지 (/admin)
 # - 비번 맞으면 마니또 공개(show_full=True)
 # - sort=1 이면 이름 가나다순 정렬
+# - records에는 항상 원본 인덱스(_idx)가 붙어 있음
 # ======================
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     records_raw = load_data()  # 원본(제출 순서)
 
-    # 각 레코드에 원본 인덱스를 붙인 리스트 생성
+    # 각 레코드에 원본 인덱스를 달아줌
     records = [
         {**rec, "_idx": i}
         for i, rec in enumerate(records_raw)
@@ -94,7 +97,7 @@ def admin():
     # 정렬 여부(쿼리 파라미터)
     sort_mode = request.args.get("sort", "0") == "1"
     if sort_mode:
-        # 이름 기준으로 정렬 (표시용 순서만 바뀜, _idx는 유지)
+        # 이름 기준으로 정렬 (표시 순서만 바뀜, _idx는 그대로)
         records.sort(key=lambda x: x["name"])
 
     # 최신 제출 5개 (원본 제출 순서 기준, 최신이 위로)
@@ -163,6 +166,41 @@ def delete(idx):
 
     # 삭제 후 /admin으로 이동
     return redirect(url_for("admin"))
+
+
+# ======================
+# CSV 다운로드 (/admin/export_csv)
+# ======================
+@app.route("/admin/export_csv")
+def export_csv():
+    records = load_data()
+
+    # CSV를 메모리에서 생성
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # 헤더
+    writer.writerow(["name", "manitto", "time"])
+
+    # 각 행 기록
+    for r in records:
+        writer.writerow([
+            r.get("name", ""),
+            r.get("manitto", ""),
+            r.get("time", ""),
+        ])
+
+    csv_data = output.getvalue()
+    output.close()
+
+    # 브라우저가 바로 다운로드하게 응답 생성
+    return Response(
+        csv_data,
+        mimetype="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": "attachment; filename=result.csv"
+        }
+    )
 
 
 # ======================
