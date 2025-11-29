@@ -8,7 +8,7 @@ import io
 app = Flask(__name__)
 
 DATA_FILE = "result.json"
-ADMIN_PASSWORD = "8705"
+ADMIN_PASSWORD = "password"
 KST = timezone(timedelta(hours=9))
 
 
