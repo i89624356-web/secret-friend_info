@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>정답 여부 보기</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 16px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        a {
+            text-decoration: none;
+            color: #6c2bd9;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .ok {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>정답 여부 보기</h1>
+
+    <p>
+        {% if sort %}
+        <a href="{{ url_for('judge', sort=0) }}">제출순 정렬</a>
+        {% else %}
+        <a href="{{ url_for('judge', sort=1) }}">이름순 정렬</a>
+        {% endif %}
+        &nbsp; | &nbsp;
+        <a href="{{ url_for('admin', sort=1 if sort else 0) }}">← 관리자 페이지로 돌아가기</a>
+    </p>
+
+    {% if records %}
+    <table>
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>이름</th>
+                <th>뽑은 마니또</th>
+                <th>추측</th>
+                <th>내가 맞혔는지</th>
+                <th>상대방이 나를 맞혔는지</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ r.name }}</td>
+                <td>{{ r.manitto }}</td>
+                <td>{{ r.guessing }}</td>
+                <td>
+                    {% if r.my_correct %}
+                    <span class="ok">O</span>
+                    {% else %}
+                    <span class="fail">X</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.partner_correct %}
+                    <span class="ok">O</span>
+                    {% else %}
+                    <span class="fail">X</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>아직 제출된 데이터가 없습니다.</p>
+    {% endif %}
+
+</body>
+
+</html>

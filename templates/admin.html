@@ -87,6 +87,8 @@
         {% if show_full %}
         &nbsp; | &nbsp;
         <a href="{{ url_for('export_csv') }}?sort={{ 1 if sort else 0 }}">CSV 다운로드</a>
+        &nbsp; | &nbsp;
+        <a href="{{ url_for('judge', sort=1 if sort else 0) }}">정답 여부 보기</a>
         {% endif %}
     </p>
 

@@ -217,6 +217,56 @@ def export_csv():
 
 
 # ======================
+# 정답 여부 페이지 (/admin/judge)
+# - sort=1 이면 이름순, 0이면 제출순
+# - 각 사람에 대해:
+#   my_correct: 내가 맞혔는지 (guessing == manitto)
+#   partner_correct: 상대방이 나를 맞혔는지
+#                    (내 manitto 기록에서 guessing == 내 이름)
+# ======================
+@app.route("/admin/judge")
+def judge():
+    records_raw = load_data()
+
+    # 정렬 모드
+    sort_mode = request.args.get("sort", "0") == "1"
+
+    # 화면에 보여줄 순서용
+    if sort_mode:
+        records = sorted(records_raw, key=lambda x: x["name"])
+    else:
+        records = records_raw
+
+    # 이름 -> 기록 매핑 (상대방 판단용)
+    by_name = {r.get("name", ""): r for r in records_raw}
+
+    judged = []
+    for r in records:
+        name = r.get("name", "")
+        manitto = r.get("manitto", "")
+        guessing = r.get("guessing", "")
+
+        # 내가 맞혔는지
+        my_correct = bool(guessing and manitto and guessing == manitto)
+
+        # 상대방이 나를 맞혔는지
+        partner_correct = False
+        partner_rec = by_name.get(manitto)
+        if partner_rec:
+            partner_guess = partner_rec.get("guessing", "")
+            if partner_guess == name:
+                partner_correct = True
+
+        judged.append({
+            **r,
+            "my_correct": my_correct,
+            "partner_correct": partner_correct,
+        })
+
+    return render_template("judge.html", records=judged, sort=sort_mode)
+
+
+# ======================
 # 로컬 실행
 # ======================
 if __name__ == "__main__":
