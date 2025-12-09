@@ -68,7 +68,6 @@
         <a href="{{ url_for('admin', sort=1 if sort else 0) }}">← 관리자 페이지로 돌아가기</a>
         &nbsp; | &nbsp;
         <a href="{{ url_for('export_judge_csv', sort=1 if sort else 0) }}">CSV 다운로드</a>
-
     </p>
 
     {% if records %}
