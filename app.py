@@ -219,8 +219,11 @@ def export_csv():
 # ======================
 # 정답 여부 페이지 (/admin/judge)
 # - sort=1 이면 이름순, 0이면 제출순
-# - my_correct: 내가 맞혔는지 (guessing == manitto)
-# - partner_correct: 내 마니또가 나를 맞혔는지
+# - my_correct:
+#     내가 추측한 사람이 "실제로 나를 manitto로 뽑은 사람"이면 O
+# - partner_correct:
+#     내가 뽑은 사람(내 manitto 대상)이
+#     "자기 추측 칸에 나를 썼는지" 보면 O
 # ======================
 @app.route("/admin/judge")
 def judge():
@@ -229,29 +232,39 @@ def judge():
     # 정렬 모드
     sort_mode = (request.args.get("sort") or "0") == "1"
 
-    # 화면에 보여줄 순서
+    # 화면 표시용 순서
     if sort_mode:
         display_records = sorted(records_raw, key=lambda r: r.get("name", ""))
     else:
         display_records = records_raw
 
-    # 이름 -> 기록 매핑 (상대방 판단용, 원본 기준)
+    # 이름 -> 기록 (상대방 추측 확인용)
     by_name = {r.get("name", ""): r for r in records_raw}
+
+    # "나를 manitto로 뽑은 사람" 매핑: target(=manitto) -> giver(name)
+    giver_by_target = {}
+    for r in records_raw:
+        giver = r.get("name", "")
+        target = r.get("manitto", "")
+        if giver and target and target not in giver_by_target:
+            giver_by_target[target] = giver
 
     judged = []
     for r in display_records:
         name = r.get("name", "")
-        manitto = r.get("manitto", "")
-        guessing = r.get("guessing", "")
+        my_target = r.get("manitto", "")
+        my_guess = r.get("guessing", "")
 
-        # 내가 맞혔는지
-        my_correct = bool(name and manitto and guessing and guessing == manitto)
+        # 실제 내 마니또 = 나를 manitto로 쓴 사람
+        real_my_manitto = giver_by_target.get(name)
+        my_correct = bool(name and my_guess and real_my_manitto
+                          and my_guess == real_my_manitto)
 
-        # 상대방이 나를 맞혔는지
+        # 내가 뽑은 사람(내 target)이 나를 맞혔는지
         partner_correct = False
-        if manitto and manitto in by_name:
-            partner_rec = by_name[manitto]
-            partner_guess = partner_rec.get("guessing", "")
+        target_rec = by_name.get(my_target)
+        if target_rec:
+            partner_guess = target_rec.get("guessing", "")
             if partner_guess == name:
                 partner_correct = True
 
@@ -274,27 +287,36 @@ def export_judge_csv():
     # 정렬 모드
     sort_mode = (request.args.get("sort") or "0") == "1"
 
-    # 화면 순서
     if sort_mode:
         display_records = sorted(records_raw, key=lambda r: r.get("name", ""))
     else:
         display_records = records_raw
 
-    # 이름 -> 기록 매핑 (상대방 판단용, 원본 기준)
+    # 이름 -> 기록
     by_name = {r.get("name", ""): r for r in records_raw}
+
+    # target(=manitto) -> giver(name)
+    giver_by_target = {}
+    for r in records_raw:
+        giver = r.get("name", "")
+        target = r.get("manitto", "")
+        if giver and target and target not in giver_by_target:
+            giver_by_target[target] = giver
 
     judged = []
     for r in display_records:
         name = r.get("name", "")
-        manitto = r.get("manitto", "")
-        guessing = r.get("guessing", "")
+        my_target = r.get("manitto", "")
+        my_guess = r.get("guessing", "")
 
-        my_correct = bool(name and manitto and guessing and guessing == manitto)
+        real_my_manitto = giver_by_target.get(name)
+        my_correct = bool(name and my_guess and real_my_manitto
+                          and my_guess == real_my_manitto)
 
         partner_correct = False
-        if manitto and manitto in by_name:
-            partner_rec = by_name[manitto]
-            partner_guess = partner_rec.get("guessing", "")
+        target_rec = by_name.get(my_target)
+        if target_rec:
+            partner_guess = target_rec.get("guessing", "")
             if partner_guess == name:
                 partner_correct = True
 
@@ -322,7 +344,6 @@ def export_judge_csv():
     csv_text = output.getvalue()
     output.close()
 
-    # 엑셀 한글 안 깨지게 cp949
     csv_bytes = csv_text.encode("cp949", errors="ignore")
 
     return Response(
