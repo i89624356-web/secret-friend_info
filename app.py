@@ -37,12 +37,13 @@ def save_all(records):
         json.dump(records, f, ensure_ascii=False, indent=4)
 
 
-def save_result(name, manitto):
+def save_result(name, manitto, guessing):
     """이름-마니또 기록 추가"""
     records = load_data()
     records.append({
         "name": name,
         "manitto": manitto,
+        "guessing": guessing,
         "time": datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
     })
     save_all(records)
@@ -56,10 +57,11 @@ def index():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         manitto = request.form.get("manitto", "").strip()
+        guessing = request.form.get("guessing", "").strip()
 
-        if name and manitto:
-            save_result(name, manitto)
-            return redirect(url_for("result_page", name=name, manitto=manitto))
+        if name and manitto and guessing:
+            save_result(name, manitto, guessing)
+            return redirect(url_for("result_page", name=name, manitto=manitto, guessing=guessing))
         else:
             # 하나라도 비었으면 다시 폼
             return render_template("index.html")
@@ -75,7 +77,8 @@ def index():
 def result_page():
     name = request.args.get("name")
     manitto = request.args.get("manitto")
-    return render_template("result.html", name=name, manitto=manitto)
+    guessing = request.args.get("guessing")
+    return render_template("result.html", name=name, manitto=manitto, guessing=guessing)
 
 
 # ======================
@@ -190,11 +193,12 @@ def export_csv():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(["이름", "뽑은 마니또"])
+    writer.writerow(["이름", "뽑은 마니또", "추측"])
     for r in records:
         writer.writerow([
             r.get("name", ""),
-            r.get("manitto", "")
+            r.get("manitto", ""),
+            r.get("guessing", "")
         ])
 
     csv_text = output.getvalue()

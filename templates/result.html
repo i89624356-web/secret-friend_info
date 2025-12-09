@@ -9,8 +9,8 @@
 <body>
     <h1>제출되었습니다.</h1>
 
-    {% if name and manitto %}
-    <p>{{ name }} → {{ manitto }}</p>
+    {% if name and manitto and guessing%}
+    <p>{{ name }} → {{ manitto }}, 추측: {{guessing}}</p>
     {% else %}
     <p>잘못된 접근입니다.</p>
     {% endif %}
