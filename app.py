@@ -267,6 +267,79 @@ def judge():
 
 
 # ======================
+# 정답 여부 CSV 다운로드 (/admin/judge/export)
+# ======================
+@app.route("/admin/judge/export")
+def export_judge_csv():
+    records_raw = load_data()
+
+    # 정렬 모드
+    sort_mode = request.args.get("sort", "0") == "1"
+
+    # 화면 정렬 기준 그대로 적용
+    if sort_mode:
+        records = sorted(records_raw, key=lambda x: x["name"])
+    else:
+        records = records_raw
+
+    # 이름 -> 기록 매핑 (상대방 판단용)
+    by_name = {r.get("name", ""): r for r in records_raw}
+
+    judged = []
+    for r in records:
+        name = r.get("name", "")
+        manitto = r.get("manitto", "")
+        guessing = r.get("guessing", "")
+
+        # 내가 맞혔는지
+        my_correct = bool(guessing and manitto and guessing == manitto)
+
+        # 상대방이 나를 맞혔는지
+        partner_correct = False
+        partner_rec = by_name.get(manitto)
+        if partner_rec:
+            partner_guess = partner_rec.get("guessing", "")
+            if partner_guess == name:
+                partner_correct = True
+
+        judged.append({
+            **r,
+            "my_correct": my_correct,
+            "partner_correct": partner_correct,
+        })
+
+    # CSV 생성
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # 헤더
+    writer.writerow(["이름", "뽑은 마니또", "추측", "내가 맞혔는지", "상대방이 나를 맞혔는지"])
+
+    for r in judged:
+        writer.writerow([
+            r.get("name", ""),
+            r.get("manitto", ""),
+            r.get("guessing", ""),
+            "O" if r.get("my_correct") else "X",
+            "O" if r.get("partner_correct") else "X",
+        ])
+
+    csv_text = output.getvalue()
+    output.close()
+
+    # 엑셀 한글 안 깨지게 cp949 인코딩
+    csv_bytes = csv_text.encode("cp949", errors="ignore")
+
+    return Response(
+        csv_bytes,
+        mimetype="text/csv; charset=cp949",
+        headers={
+            "Content-Disposition": "attachment; filename=judge_result.csv"
+        }
+    )
+
+
+# ======================
 # 로컬 실행
 # ======================
 if __name__ == "__main__":
