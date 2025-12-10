@@ -216,9 +216,12 @@ def export_csv():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(["이름", "뽑은 마니또", "추측"])
-    for r in records:
+    # 번호 컬럼 추가
+    writer.writerow(["번호", "이름", "뽑은 마니또", "추측"])
+
+    for idx, r in enumerate(records, start=1):
         writer.writerow([
+            idx,  # 번호
             r.get("name", ""),
             r.get("manitto", ""),
             r.get("guessing", "")
@@ -353,10 +356,12 @@ def export_judge_csv():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    writer.writerow(["이름", "뽑은 마니또", "추측", "내가 맞혔는지", "상대방이 나를 맞혔는지"])
+    # 번호 컬럼 추가
+    writer.writerow(["번호", "이름", "뽑은 마니또", "추측", "내가 맞혔는지", "상대방이 나를 맞혔는지"])
 
-    for r in judged:
+    for idx, r in enumerate(judged, start=1):
         writer.writerow([
+            idx,  # 번호
             r.get("name", ""),
             r.get("manitto", ""),
             r.get("guessing", ""),
