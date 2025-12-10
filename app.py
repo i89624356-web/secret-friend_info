@@ -134,18 +134,26 @@ def admin():
 def edit(idx):
     records = load_data()
 
-    # 인덱스 범위 체크
+    # 인덱스 체크
     if idx < 0 or idx >= len(records):
         abort(404)
 
     record = records[idx]
 
     if request.method == "POST":
-        new_name = request.form.get("name", "").strip()
+        new_name = (request.form.get("name") or "").strip()
+        new_manitto = (request.form.get("manitto") or "").strip()
+        new_guessing = (request.form.get("guessing") or "").strip()
+
+        # 이름은 비어 있지 않을 때만 반영
         if new_name:
             record["name"] = new_name
-            save_all(records)
-        # 수정 후 /admin으로 이동
+
+        # 마니또 / 추측은 그대로 저장
+        record["manitto"] = new_manitto
+        record["guessing"] = new_guessing
+
+        save_all(records)
         return redirect(url_for("admin"))
 
     # GET: 수정 폼

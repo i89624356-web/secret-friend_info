@@ -3,18 +3,60 @@
 
 <head>
     <meta charset="utf-8">
-    <title>이름 수정</title>
+    <title>기록 수정</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 6px 10px;
+            font-size: 1rem;
+            width: 260px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        a {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #6c2bd9;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>이름 수정</h1>
+    <h1>기록 수정</h1>
 
     <form method="post">
-        <p>
-            <label>이름:
-                <input type="text" name="name" value="{{ record.name }}" required>
-            </label>
-        </p>
+        <label>
+            이름:
+            <input type="text" name="name" value="{{ record.name }}" required>
+        </label>
+
+        <label>
+            뽑은 마니또:
+            <input type="text" name="manitto" value="{{ record.manitto or '' }}">
+        </label>
+
+        <label>
+            추측:
+            <input type="text" name="guessing" value="{{ record.guessing or '' }}">
+        </label>
 
         <button type="submit">저장</button>
         <a href="{{ url_for('admin') }}">취소</a>
