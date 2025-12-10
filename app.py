@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort, Response
+from flask import Flask, render_template, request, redirect, url_for, abort, Response, session
 import json
 import os
 from datetime import datetime, timedelta, timezone
@@ -6,6 +6,9 @@ import csv
 import io
 
 app = Flask(__name__)
+
+# 세션에 관리자 여부를 저장하기 위한 키
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 DATA_FILE = "result.json"
 ADMIN_PASSWORD = "password"
@@ -106,15 +109,21 @@ def admin():
     # 최신 제출 5개 (원본 제출 순서 기준, 최신이 위로)
     summary = records_raw[-5:][::-1]
 
-    # 비밀번호 확인 (마니또 공개용)
-    show_full = False
+    # 세션에 저장된 관리자 여부
+    is_admin = session.get("is_admin", False)
+    show_full = is_admin
     message = ""
 
+    # 비밀번호 확인 (마니또 공개용)
     if request.method == "POST":
         pw = request.form.get("password", "").strip()
         if pw == ADMIN_PASSWORD:
+            session["is_admin"] = True   # 이후에도 계속 show_full 유지
             show_full = True
         else:
+            # 비밀번호 틀리면 관리자 권한 제거
+            session.pop("is_admin", None)
+            show_full = False
             message = "관리자 비밀번호가 올바르지 않습니다."
 
     return render_template(
@@ -139,6 +148,8 @@ def edit(idx):
         abort(404)
 
     record = records[idx]
+    # 현재 정렬 상태(없으면 기본 0 = 제출순)
+    sort = request.args.get("sort", "0")
 
     if request.method == "POST":
         new_name = (request.form.get("name") or "").strip()
@@ -154,10 +165,11 @@ def edit(idx):
         record["guessing"] = new_guessing
 
         save_all(records)
-        return redirect(url_for("admin"))
+        # 수정 후에도 정렬 상태 유지
+        return redirect(url_for("admin", sort=sort))
 
     # GET: 수정 폼
-    return render_template("edit.html", record=record, idx=idx)
+    return render_template("edit.html", record=record, idx=idx, sort=sort)
 
 
 # ======================
@@ -175,8 +187,11 @@ def delete(idx):
     records.pop(idx)
     save_all(records)
 
-    # 삭제 후 /admin으로 이동
-    return redirect(url_for("admin"))
+    # 현재 정렬 상태(폼 action 쿼리에서 받음)
+    sort = request.args.get("sort", "0")
+
+    # 삭제 후에도 정렬 상태 유지
+    return redirect(url_for("admin", sort=sort))
 
 
 # ======================

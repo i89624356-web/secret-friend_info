@@ -145,10 +145,12 @@
                 <!-- 관리: 수정 + 삭제 -->
                 <td>
                     {% if show_full %}
-                    <a href="{{ url_for('edit', idx=r._idx) }}">수정</a>
+                    <!-- 현재 정렬 상태(sort)를 함께 전달 -->
+                    <a href="{{ url_for('edit', idx=r._idx, sort=1 if sort else 0) }}">수정</a>
                     {% endif %}
 
-                    <form method="post" action="{{ url_for('delete', idx=r._idx) }}"
+                    <!-- 삭제도 현재 정렬 상태를 쿼리로 붙여서 전달 -->
+                    <form method="post" action="{{ url_for('delete', idx=r._idx, sort=1 if sort else 0) }}"
                         style="display:inline;{% if show_full %} margin-left:8px;{% endif %}"
                         onsubmit="return confirm('삭제 하시겠습니까?');">
                         <button type="submit" class="btn-delete">삭제</button>
